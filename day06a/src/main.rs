@@ -1,12 +1,10 @@
-use std::iter::repeat;
-
 fn solution(input: &str) -> usize {
     let initial_state: Vec<_> = input
         .split(',')
         .map(|n| n.parse::<u32>().unwrap())
         .collect();
 
-    let final_count = repeat(1)
+    let final_count = (0..80)
         .scan(initial_state, |fishes, _| {
             let mut new_fishes = Vec::new();
             for f in fishes.iter_mut() {
@@ -21,7 +19,6 @@ fn solution(input: &str) -> usize {
             fishes.append(&mut new_fishes);
             Some(fishes.clone())
         })
-        .take(80)
         .last()
         .unwrap()
         .len();

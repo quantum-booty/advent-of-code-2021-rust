@@ -1,19 +1,16 @@
-use std::iter::repeat;
-
 fn solution(input: &str, days: usize) -> usize {
     let mut fish_counts = vec![0; 9];
     for f in input.split(',').map(|n| n.parse::<usize>().unwrap()) {
         fish_counts[f] += 1;
     }
 
-    let final_count = repeat(1)
+    let final_count = (0..days)
         .scan(fish_counts, |fish_counts, _| {
             let zeroes = fish_counts[0];
             fish_counts.rotate_left(1);
             fish_counts[6] += zeroes;
             Some(fish_counts.clone())
         })
-        .take(days)
         .last()
         .unwrap()
         .iter()
