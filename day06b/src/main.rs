@@ -4,19 +4,14 @@ fn solution(input: &str, days: usize) -> usize {
         fish_counts[f] += 1;
     }
 
-    let final_count = (0..days)
-        .scan(fish_counts, |fish_counts, _| {
+    (0..days)
+        .for_each(|_| {
             let zeroes = fish_counts[0];
             fish_counts.rotate_left(1);
             fish_counts[6] += zeroes;
-            Some(fish_counts.clone())
-        })
-        .last()
-        .unwrap()
-        .iter()
-        .sum();
+        });
 
-    final_count
+    fish_counts.iter().sum()
 }
 
 fn main() {
