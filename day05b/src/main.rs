@@ -1,5 +1,3 @@
-#![feature(slice_group_by)]
-
 use std::{collections::HashMap, iter};
 
 fn main() {
