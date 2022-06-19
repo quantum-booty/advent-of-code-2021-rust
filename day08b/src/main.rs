@@ -19,12 +19,12 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     println!("{}", solution(input));
 }
 
-fn solution(input: &str) -> i32 {
+fn solution(input: &str) -> u32 {
     input.trim().lines().map(|line| solution_line(line)).sum()
 }
 
-fn solution_line(line: &str) -> i32 {
-    let mut pattern_map = HashMap::<i32, HashSet<char>>::new();
+fn solution_line(line: &str) -> u32 {
+    let mut pattern_map = HashMap::<u32, HashSet<char>>::new();
 
     let idx = line.find(" | ").unwrap();
     let output_patterns: Vec<&str> = line[idx + 2..].split_whitespace().collect();
@@ -89,7 +89,7 @@ fn solution_line(line: &str) -> i32 {
             }
         });
 
-    let result: Vec<i32> = output_patterns
+    let result: Vec<u32> = output_patterns
         .iter()
         .map(|pattern| {
             let pattern_set = pattern_to_set(&pattern);
@@ -106,7 +106,7 @@ fn solution_line(line: &str) -> i32 {
     vec_to_int(result)
 }
 
-fn vec_to_int(result: Vec<i32>) -> i32 {
+fn vec_to_int(result: Vec<u32>) -> u32 {
     result.iter().fold(0, |acc, elem| acc * 10 + elem)
 }
 
