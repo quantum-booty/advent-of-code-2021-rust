@@ -15,20 +15,15 @@ fn main() {
 }
 
 fn solution(input: &str) -> i32 {
-    let grid: Vec<Vec<i32>> = input
+    let height_map: Vec<Vec<u32>> = input
         .lines()
-        .map(|line| {
-            line.chars()
-                .map(|num| num.to_digit(10).unwrap() as i32)
-                .collect()
-        })
+        .map(|line| line.chars().map(|num| num.to_digit(10).unwrap()).collect())
         .collect();
-    let height = grid.len() as i32;
-    let width = grid[0].len() as i32;
-    let low_points = find_low_points(&grid, &width, &height);
+    let grid = Grid { height_map };
+    let low_points = grid.find_low_points();
     low_points
         .iter()
-        .map(|(x, y)| fill_basin(&grid, x, y))
+        .map(|p| fill_basin(&grid, *p))
         .map(|basin| basin.len() as i32)
         .sorted()
         .rev()
@@ -36,23 +31,27 @@ fn solution(input: &str) -> i32 {
         .product()
 }
 
-fn fill_basin(grid: &Vec<Vec<i32>>, x: &i32, y: &i32) -> HashSet<(i32, i32)> {
-    let mut basin = HashSet::<(i32, i32)>::new();
-    basin.insert((*x, *y));
-    fill_basin_rec(grid, &mut basin, x, y);
-    plot_basin(grid, &basin);
+fn fill_basin(grid: &Grid, point: Point) -> HashSet<Point> {
+    let mut basin = HashSet::<Point>::new();
+    basin.insert(point);
+    fill_basin_rec(grid, &mut basin, point);
+    // plot_basin(grid, &basin);
     basin
 }
 
-fn plot_basin(grid: &Vec<Vec<i32>>, basin: &HashSet<(i32, i32)>) {
+fn plot_basin(grid: &Grid, basin: &HashSet<Point>) {
     let basin_str: String = grid
+        .height_map
         .iter()
         .enumerate()
         .map(|(i, line)| {
             line.iter()
                 .enumerate()
                 .map(|(j, char)| {
-                    if basin.contains(&(i as i32, j as i32)) {
+                    if basin.contains(&Point {
+                        x: i as i32,
+                        y: j as i32,
+                    }) {
                         String::from("*")
                     } else {
                         char.to_string()
@@ -64,48 +63,72 @@ fn plot_basin(grid: &Vec<Vec<i32>>, basin: &HashSet<(i32, i32)>) {
     println!("{}", basin_str);
 }
 
-fn fill_basin_rec(grid: &Vec<Vec<i32>>, basin: &mut HashSet<(i32, i32)>, x: &i32, y: &i32) {
+fn fill_basin_rec(grid: &Grid, basin: &mut HashSet<Point>, point: Point) {
     // keep a set of traversed points
     // from a point, try traverse in the neighbour coordinates
     // if a point is in the set of traversed points
     // else if a point is higher than previous point, add to set of traversed points
     // and recurse from the new point
-    if grid[*x as usize][*y as usize] == 9 {
+    if grid.get_height(&point) == 9 {
         return;
     }
-    let height = grid.len() as i32;
-    let width = grid[0].len() as i32;
-    for (i, j) in get_neighbour_coords(x, y, &width, &height) {
-        if basin.contains(&(i, j)) {
+    for p in grid.get_neighbour_points(&point) {
+        if basin.contains(&p) {
             continue;
         }
-        if (grid[i as usize][j as usize] > grid[*x as usize][*y as usize])
-            && (grid[i as usize][j as usize] != 9)
-        {
-            basin.insert((i, j));
-            fill_basin_rec(grid, basin, &i, &j);
+        if (grid.get_height(&p) > grid.get_height(&point)) && (grid.get_height(&p) != 9) {
+            basin.insert(p);
+            fill_basin_rec(grid, basin, p);
         };
     }
 }
 
-fn find_low_points(grid: &Vec<Vec<i32>>, width: &i32, height: &i32) -> Vec<(i32, i32)> {
-    (0..*height)
-        .cartesian_product(0..*width)
-        .filter(|(x, y)| {
-            get_neighbour_coords(x, y, &width, &height)
-                .iter()
-                .all(|(i, j)| grid[*x as usize][*y as usize] < grid[*i as usize][*j as usize])
-        })
-        .collect()
+#[derive(Hash, PartialEq, Eq, Clone, Copy)]
+struct Point {
+    x: i32,
+    y: i32,
 }
 
-fn get_neighbour_coords(x: &i32, y: &i32, width: &i32, height: &i32) -> Vec<(i32, i32)> {
-    let delta: Vec<i32> = vec![-1, 0, 1];
-    delta
-        .iter()
-        .cartesian_product(delta.iter())
-        .filter(|(dx, dy)| ((dx.abs() == 1) ^ (dy.abs() == 1)))
-        .map(|(dx, dy)| (x + dx, y + dy))
-        .filter(|(i, j)| (0 <= *i) && (*i < *height) && (0 <= *j) && (*j < *width))
-        .collect()
+struct Grid {
+    height_map: Vec<Vec<u32>>,
+}
+
+impl Grid {
+    fn grid_height(&self) -> i32 {
+        self.height_map.len() as i32
+    }
+
+    fn grid_width(&self) -> i32 {
+        self.height_map[0].len() as i32
+    }
+
+    fn get_neighbour_points(&self, point: &Point) -> Vec<Point> {
+        let delta: Vec<(i32, i32)> = vec![(0, -1), (0, 1), (1, 0), (-1, 0)];
+        delta
+            .iter()
+            .map(|(dx, dy)| Point {
+                x: point.x + dx,
+                y: point.y + dy,
+            })
+            .filter(|p| {
+                (0 <= p.x) && (p.x < self.grid_height()) && (0 <= p.y) && (p.y < self.grid_width())
+            })
+            .collect()
+    }
+
+    fn get_height(&self, point: &Point) -> u32 {
+        self.height_map[point.x as usize][point.y as usize]
+    }
+
+    fn find_low_points(&self) -> Vec<Point> {
+        (0..self.grid_height())
+            .cartesian_product(0..self.grid_width())
+            .map(|(x, y)| Point { x, y })
+            .filter(|p| {
+                self.get_neighbour_points(p)
+                    .iter()
+                    .all(|neighbour| self.get_height(p) < self.get_height(neighbour))
+            })
+            .collect()
+    }
 }
