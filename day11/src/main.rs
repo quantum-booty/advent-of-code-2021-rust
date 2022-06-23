@@ -47,7 +47,7 @@ fn solution_b(input: &str) -> u32 {
     let mut flashes = 0;
     for i in 1.. {
         step(&mut grid, &mut flashes);
-        let sum: u32 = grid.grid.iter().map(|line| line.iter().sum::<u32>()).sum();
+        let sum: u32 = grid.grid.iter().flatten().sum();
         if sum == 0 {
             return i;
         }
