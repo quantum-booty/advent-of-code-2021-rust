@@ -44,7 +44,7 @@ fn solution(input: &str) -> usize {
                     };
                 };
             }
-            return Some(cs);
+            Some(cs)
         })
         .map(|cs| {
             cs.iter()

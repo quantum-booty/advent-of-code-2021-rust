@@ -18,7 +18,7 @@ fn main() {
     let mut points: Vec<_> = points_str
         .trim()
         .lines()
-        .map(|line| line.trim().split_once(",").unwrap())
+        .map(|line| line.trim().split_once(',').unwrap())
         .map(|(x, y)| Point {
             x: x.parse().unwrap(),
             y: y.parse().unwrap(),
@@ -53,7 +53,7 @@ fn plot(points: &Vec<Point>) {
     }
     let yaya = lines.iter().map(|line| line.join("")).join("\n");
     println!("{}", yaya);
-    println!("");
+    println!();
 }
 
 #[derive(Debug)]

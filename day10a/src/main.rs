@@ -44,7 +44,7 @@ fn solution(input: &str) -> usize {
                     };
                 };
             }
-            return None;
+            None
         })
         .map(|c| match c {
             ')' => 3,

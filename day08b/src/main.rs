@@ -20,7 +20,7 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 }
 
 fn solution(input: &str) -> u32 {
-    input.trim().lines().map(|line| solution_line(line)).sum()
+    input.trim().lines().map(solution_line).sum()
 }
 
 fn solution_line(line: &str) -> u32 {
@@ -53,7 +53,7 @@ fn solution_line(line: &str) -> u32 {
                 .difference(&pattern_set)
                 .copied()
                 .collect();
-            if four_diff_pattern.len() == 0 {
+            if four_diff_pattern.is_empty() {
                 pattern_map.insert(9, pattern_set);
             } else if four_diff_pattern
                 .difference(pattern_map.get(&1).unwrap())
@@ -92,7 +92,7 @@ fn solution_line(line: &str) -> u32 {
     let result: Vec<u32> = output_patterns
         .iter()
         .map(|pattern| {
-            let pattern_set = pattern_to_set(&pattern);
+            let pattern_set = pattern_to_set(pattern);
             for (k, v) in pattern_map.iter() {
                 if *v == pattern_set {
                     return k;
