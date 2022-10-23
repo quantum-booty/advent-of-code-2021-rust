@@ -1,5 +1,6 @@
+use hashbrown::HashMap;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
 
 fn main() {
     let test_input = "1163751742
